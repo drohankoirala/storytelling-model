@@ -10,7 +10,7 @@ export default function Navbar({ }) {
             <div className="max-w-[1400px] fcb w-full mx-auto">
                 <Link href={"/"} className="fc gap-3">
                     <img src="/favicon.ico" alt="" className="w-[40px]" />
-                    <h2 className="text-2xl">S-Toller</h2>
+                    <h2 className="text-2xl">SToller</h2>
                 </Link>
                 <div className="fcb gap-5 text-gray-600 font-medium">
                     <a href="#">Dashboard</a>

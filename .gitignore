@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# For THIS
+/GENERATED_IMAGES
+/__pycache__
+
+# GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
+GEMINI_API_KEY = "AIzaSyAe0JxIlKee7Jc2A83hV29k2q7OrqW57"

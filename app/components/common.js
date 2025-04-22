@@ -6,7 +6,7 @@ export function Spinner({ color, height, width }) {
     </svg>
 }
 
-const apiEndPoint = "http://localhost:1000"
+export const apiEndPoint = "http://localhost:1000"
 
 async function POST(slug, options) {
     let response = await fetch(`${apiEndPoint}${slug}`, {
@@ -16,6 +16,10 @@ async function POST(slug, options) {
         },
         body: JSON.stringify(options)
     })
+
+    if (!response.ok) {
+        return null
+    }
 
     response = await response.json()
     return response

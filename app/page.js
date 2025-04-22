@@ -5,9 +5,11 @@ import InputSection from "./components/InputSection";
 import AIGeneratedText from "./components/AIGeneratedText";
 import UserGeneratedText from "./components/UserGeneratedText";
 import { server, Spinner } from "./components/common";
+import useOption from "./components/useOption";
 
 export default function Home() {
     const [chats, setChats] = useState([])
+    // const [chats, setChats] = useOption("__mss", [])
     const [waiting, setWaiting] = useState(false)
 
     async function handelOnUpload(event) {
@@ -22,9 +24,12 @@ export default function Home() {
             ...prev, {
                 id: new Date().getTime(),
                 message: prompt,
+                token_len: prompt?.length || 0,
+                coll: [],
                 from: "user"
             }
         ]))
+
 
         fetchStory(prompt)
         setWaiting(true)
@@ -35,13 +40,26 @@ export default function Home() {
             "prompt": prompt
         })
 
-        setChats(prev => ([
-            ...prev, {
-                id: new Date().getTime(),
-                message: response?.response,
-                from: "ai"
-            }
-        ]))
+        if (response === null) {
+            setChats(prev => ([
+                ...prev, {
+                    id: new Date().getTime(),
+                    error: true
+                }
+            ]))
+            
+        } else {
+            setChats(prev => ([
+                ...prev, {
+                    id: new Date().getTime(),
+                    message: response?.result,
+                    coll: response?.coll,
+                    token_len: response?.token_len,
+                    imgs: [],
+                    from: "ai"
+                }
+            ]))
+        }
 
         setWaiting(false)
     }
@@ -49,21 +67,28 @@ export default function Home() {
     return <>
         <section className="__chat_section overflow-y-scroll">
             <div className="max-w-[900px] w-[90%] mx-auto flex flex-col gap-2 py-5">
-                {chats.map((item) => {
+                {chats.map((item, index) => {
                     if (item.from === "user") {
                         return <UserGeneratedText item={item} />
                     } else if (item.from === "ai") {
-                        return <AIGeneratedText item={item} />
+                        return <AIGeneratedText item={item} last={index === (chats.length - 1)} />
+                    } else {
+                        return <div class="__user_gen w-full flex mt-3">
+                            <div class="max-w-[600px] bg-red-500 text-white rounded-lg w-fit p-2 font-medium px-3">
+                                Failed to generate response!
+                            </div>
+                        </div>
                     }
                 })}
 
-                <div className="my-3" />
-
-                {waiting && <div className="fc gap-3">
+                {waiting && <div className="fc gap-3" id="__spinner__target_here">
                     {Spinner({ height: "20px" })}
                     <span>Generating...</span>
                 </div>}
+
+                <div className="my-5" />
             </div>
+
             {!chats.length && (
                 <div className="mt-[150px] fc text-center px-4 flex-col">
                     <div className="mb-5 max-w-[800px]">
@@ -71,7 +96,7 @@ export default function Home() {
                             {/* <img src="/favicon.ico" alt="" className="w-[100px]" /> */}
                         </div>
                         <h3 className="pri-head mb-1">
-                            Welcome to the <span className="col-pri">Land of S-Toller</span>.
+                            Welcome to the <span className="col-pri">Land of SToller</span>.
                         </h3>
                         <p className="text-muted para">
                             Whether it's a sleepy moon who wants to shine brighter, a cat learning to fly, or a forest full of giggling mushrooms — <span className="underline">I'm here to spin a tale just for you.</span>
