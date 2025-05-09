@@ -1,11 +1,12 @@
 "use client";
 
 import { RxUpload } from "react-icons/rx";
+import InputBox from "./InputBox";
 
 export default function InputSection({ onUpload }) {
     return <>
         <form className="box shadow max-w-[900px] mx-auto bg-sec rounded-xl w-[90%] p-3 fcb" onSubmit={onUpload}>
-            <input type="text" name="__input__prompt" required className="p-2 text-lg w-full outline-none" placeholder="Start with story theme, Person Name, Place..." />
+            <InputBox />
 
             <button className="p-2 bg-black text-white rounded-xl" type="submit">
                 <RxUpload size={20} />

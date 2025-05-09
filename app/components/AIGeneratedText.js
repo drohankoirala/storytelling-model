@@ -4,7 +4,7 @@ import { AiOutlineDislike, AiOutlineLike } from "react-icons/ai";
 import { IoCopyOutline } from "react-icons/io5";
 import { CiImageOn, CiShare1 } from "react-icons/ci";
 import { useEffect, useState } from "react";
-import { apiEndPoint, server } from "./common";
+import { server } from "./common";
 const marked = require('marked');
 
 export default function AIGeneratedText({ item }) {
@@ -15,22 +15,26 @@ export default function AIGeneratedText({ item }) {
     async function handelConvertForThisImage(index) {
         let response = await server.POST("/v1/gen/generate/image", {
             prompt: item?.coll[index]
-        })
+        }, true)
 
-        setImage(prev => ({ ...prev, [index]: ((response?.result && `${apiEndPoint}/v1/static/download/image/${response?.result}`) || "failed") }))
+        if (response) {
+            setImage(prev => ({ ...prev, [index]: (URL.createObjectURL(response) || "failed") }))
+        }
     }
-
-    console.log(image, "ASDASDASDJKAFAJFDKHJ");
 
     useEffect(() => {
         let needed = all_text.filter(a => a?.includes("<--img--/>"))
 
         needed.map((item, index) => {
-            if (!item?.includes("<--img--/>")) return
+            if (!item?.includes("<--img--/>") || image?.[String(index)]) return
 
             handelConvertForThisImage(index)
         })
     }, [all_text?.length, item])
+
+    async function handelReRendering(thisImg, index) {
+        console.log(thisImg, index);
+    }
 
     return <div className="__ai_gen w-full mt-3">
         <div className="__drk__content max-w-[1000px] px-4 rounded-lg w-fit p-3 pb-1">
@@ -50,9 +54,9 @@ export default function AIGeneratedText({ item }) {
 
                     </div>}
 
-                    {item?.includes("<--img--/>") && <div className="__cont__par_col_ w-full">
+                    {item?.includes("<--img--/>") && <div className="__cont__par_col_ w-full overflow-hidden">
                         {image?.[index] ? <>
-                            <img src={image?.[index]} className="w-fit mx-auto"/>
+                            <img src={image?.[index]} className="w-fit animate-scale-up-down mx-auto" onError={event => handelReRendering(event, index)} />
                         </> : <div className="__loader h-[250px] relative fcc border rounded-md">
                             <CiImageOn className="w-full h-full absolute opacity-5" />
                             <svg className="animate-spin" style={{

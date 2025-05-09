@@ -18,7 +18,10 @@ export default function Home() {
         if (waiting) return
         let prompt = event.target.__input__prompt.value
 
-        event.target.__input__prompt.value = ""
+        let sectionCompo = document.querySelector(".__input__prompt")
+        if (sectionCompo) {
+            sectionCompo.value = ""
+        }
 
         setChats(prev => ([
             ...prev, {
@@ -47,7 +50,7 @@ export default function Home() {
                     error: true
                 }
             ]))
-            
+
         } else {
             setChats(prev => ([
                 ...prev, {
@@ -109,7 +112,7 @@ export default function Home() {
 
         </section>
 
-        {!!chats.length && <div className="h-[125px] fcc flex-col">
+        {!!chats.length && <div className="fcc flex-col flex-grow">
             <InputSection onUpload={handelOnUpload} />
         </div>}
     </>

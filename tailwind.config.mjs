@@ -10,12 +10,18 @@ export default {
     extend: {
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out',
+        'scale-up-down': 'scaleUpDown 10s infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: 0, transform: 'translateY(20px)' },
           '100%': { opacity: 1, transform: 'translateY(0)' },
         },
+        scaleUpDown: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)' },
+        }
       },
     }
   },

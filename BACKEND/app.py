@@ -1,18 +1,21 @@
 import re
 import time
 from io import BytesIO
-
 from PIL import Image
-from flask import Flask, request, jsonify, send_from_directory
+
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from google import genai
 from google.genai import types
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 
+# GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
-GROQ_API_KEY = "https://console.groq.com/playground"
-GEMINI_API_KEY = "https://aistudio.google.com/app/apikey"
+# GEMINI_API_KEY = "AIzaSyAe0JxIlKee7Jc2A83hV29k2q7OrqW57"
+# GEMINI_API_KEY = "AIzaSyD9aQd82Rf-my7-EbztM4ksswGyb1geSqM"
+GEMINI_API_KEY = "AIzaSyDSUyKMdfrzSOK2jwqZD0f3dBo59szPmk8"
 
 app = Flask(__name__)
 main_prompt_template_story = PromptTemplate(
@@ -52,6 +55,8 @@ Then STOP.
    - Skip the tag for narration-only, abstract parts, or plain dialogue.  
    - The goal is to help illustrators easily spot visual scenes.
 8. Image should never be at First or Last part of the story.
+9. Make sure the image prompt includes a short summary or clear context about the paragraph or theme of the story. This helps the image generation model understand the vibe and setting—so it creates visuals that actually match the story.
+10. Make sure the image prompt includes proper details about the character—whether it's a human, animal, or something else. Mention sex, shape, size, species, and any other key traits.
 
 ## STYLE GUIDE
 - Warm, friendly tone with a playful rhythm.
@@ -81,6 +86,8 @@ Now, begin the story below:""")
 # ------------------------------------------------------------------------------------------------------
 # Make Sure you have valid path to save the output file of gemini
 folder = "/home/rohan/Projects/Research/StoryTellingModel/client/BACKEND/GENERATED_IMAGES/"
+
+
 # ------------------------------------------------------------------------------------------------------
 
 
@@ -120,10 +127,6 @@ class ImageGenerator:
 
     def generate(self, prompt):
         _t = time.time()
-        _on_raise = {
-            "error": "400",
-            "message": "Failed to generate image for given prompt."
-        }
 
         response = self.client.models.generate_content(
             model="gemini-2.0-flash-exp-image-generation",
@@ -141,27 +144,22 @@ $$ USER_PROMPT:
             )
         )
 
-        _plk = response.candidates[0].content
-        if not _plk:
-            return jsonify(_on_raise)
+        image, file = None, None
+        for _plk in response.candidates[0].content.parts:
+            image = _plk.inline_data
+            if not image:
+                continue
 
-        _plk = _plk.parts
-        if not len(_plk):
-            return jsonify(_on_raise)
+            file = f'{re.sub(r"[^A-Za-z0-9]", "_", prompt).lower()[:50]}.png'
 
-        image = _plk[0].inline_data
-        if not image:
-            return jsonify(_on_raise)
+            image = BytesIO((image.data))
 
-        file = f'{re.sub(r"[^A-Za-z0-9]", "_", prompt).lower()}.png'
+            image = Image.open(image)
+            image.save(file)
 
-        image = Image.open(BytesIO(image.data))
-        image.save(f"{folder}{file}")
-
-        return {
-            "result": file,
-            "_t": f"{time.time() - _t}s",
-        }
+            return image, file
+        
+        return False
 
 
 storyModel = StoryGenerator()
@@ -181,7 +179,13 @@ def generate_image():
     prompt = request.json.get("prompt")
     response = imageModel.generate(prompt)
 
-    return jsonify(response), 200
+    if not response:
+        return jsonify({
+            "error": "400",
+            "message": "Failed to generate image for given prompt."
+        }), 400
+    
+    return send_file(response[0], download_name=response[1], mimetype="image/png"), 200
 
 
 @app.route("/v1/static/download/image/<file_name>")
@@ -198,4 +202,4 @@ def add_headers(response):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=1000)
+    app.run(debug=True, port=5555)

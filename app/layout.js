@@ -1,5 +1,6 @@
 import Navbar from "@/app/components/Navbar";
 import "./globals.css"
+import Application from "./components/Application";
 
 export default function RootLayout({ children }) {
     return (
@@ -9,8 +10,10 @@ export default function RootLayout({ children }) {
             </head>
             <body className="h-screen">
                 <drk className="__drk __main_entry">
-                    <Navbar /> 
-                    {children}
+                    <Application>
+                        <Navbar />
+                        {children}
+                    </Application>
                 </drk>
             </body>
         </html>
