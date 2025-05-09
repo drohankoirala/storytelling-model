@@ -17,11 +17,10 @@ export default function Navbar({ }) {
                     <h2 className="text-2xl">SToller</h2>
                 </Link>
                 <div className="fcb gap-5 text-gray-600 font-medium">
-                    <a href="#">Dashboard</a>
-                    <a href="#">Pricing</a>
-                    <a href="#">Docs</a>
-                    <a href="#">Developer API</a>
-                    <TbCategory size={25} />
+                    <Link href="/dashboard">Dashboard</Link>
+                    <Link href="/pricing">Pricing</Link>
+                    <Link href="https://ai.google.dev/gemini-api/docs/image-generation">Docs</Link>
+                    <Link href="https://ai.google.dev/gemini-api/docs/api-key">Developer API</Link>
                     <div className="fc gap-2">
                         <Link class="flex py-[2px] pl-[2px] overflow-hidden gap-2 items-center rounded-3xl border-sec pr-2 transition-all duration-300" href={session?.data?.user?.email ? "#" : "/auth/login"}>
                             <img src={session?.data?.user?.image || "/favicon.ico"} class="w-[30px] h-[30px] p-1 rounded-3xl border-[#b1b1b1]" />
